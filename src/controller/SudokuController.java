@@ -20,10 +20,10 @@ public class SudokuController implements ActionListener {
                 sudokuView.setGameStarted(true);
             }
 
-        }else if (src.equals("Đáp án")){
+        }else if (src.equals("<html>Đổi <br>màn</html>")){
             if(sudokuView.getGameStarted() == true)
             {
-                sudokuView.showSudokuSolution();
+                sudokuView.loadSudokuBoard(true);
             }
         }else if(src.equals("Kiểm tra")){
             if(sudokuView.getGameStarted() == true)

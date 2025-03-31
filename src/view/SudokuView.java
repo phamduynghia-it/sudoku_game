@@ -13,7 +13,7 @@ public class SudokuView extends JFrame {
     private JLabel statusLabel;
     private JLabel noticeLabel;
     private JButton startButton;
-    private JButton answerButton;
+    private JButton newLevelButton;
     private JButton checkButton;
     private JButton suggestButton;
     private JButton saveButton;
@@ -35,7 +35,6 @@ public class SudokuView extends JFrame {
         this.setBackgroundButton(suggestButton, Color.YELLOW);
     }
     public SudokuView() {
-
         init();
     }
     public Boolean getGameStarted() {
@@ -49,6 +48,10 @@ public class SudokuView extends JFrame {
     {
         jButton.setBackground(color);
         jButton.setOpaque(true);
+    }
+    public void setTextLabel(JLabel jLabel, String s)
+    {
+        jLabel.setText(s);
     }
     public JButton createButton(String text, Color color, ActionListener ac) {
         JButton button = new JButton(text);
@@ -86,7 +89,7 @@ public class SudokuView extends JFrame {
         startButton = createButton("<html>Chơi<br>mới</html>", Color.RED, ac);
         checkButton = createButton("Kiểm tra", Color.LIGHT_GRAY, ac);
         suggestButton = createButton("Gợi ý", Color.LIGHT_GRAY, ac);
-        answerButton = createButton("Đáp án", Color.LIGHT_GRAY, ac);
+        newLevelButton = createButton("<html>Đổi <br>màn</html>", Color.LIGHT_GRAY, ac);
         saveButton= createButton("<html>Lưu<br>Game</html>", Color.RED, ac);
         continueButton= createButton("<html>Chơi<br>tiếp<html>", Color.green, ac);
 
@@ -96,7 +99,7 @@ public class SudokuView extends JFrame {
         jPanel_button.setPreferredSize(new Dimension(200, 300));
         jPanel_button.add(checkButton);
         jPanel_button.add(startButton);
-        jPanel_button.add(answerButton);
+        jPanel_button.add(newLevelButton);
         jPanel_button.add(suggestButton);
         jPanel_button.add(saveButton);
         jPanel_button.add(continueButton);
@@ -126,6 +129,7 @@ public class SudokuView extends JFrame {
     // load ma tran len man hinh
     public void loadSudokuBoard() {
        this.setButtonWhileGameStart();
+       this.setBackgroundButton(continueButton, Color.gray);
         numberOfHints = 5;
         sudokuModel = new SudokuModel();
         isFixedValue = this.sudokuModel.getFixedCells();
@@ -164,16 +168,6 @@ public class SudokuView extends JFrame {
                     cells[i][j].setText(""); // Ô trống
                     cells[i][j].setEditable(true);
                 }
-            }
-        }
-    }
-    // ham show ket qua
-    public void showSudokuSolution() {
-        for (int i = 0; i < 9; i++) {
-            for (int j = 0; j < 9; j++) {
-                cells[i][j].setText((solution[i][j])+"");
-                cells[i][j].setEditable(false);
-                cells[i][j].setBackground(Color.LIGHT_GRAY);
             }
         }
     }
@@ -232,7 +226,8 @@ public class SudokuView extends JFrame {
     public Boolean checkEndGame() {
         if (this.sudokuModel.endGame() == true)
         {
-            statusLabel.setText("Chúc mừng! Bạn đã chiến thắng!");
+            this.setGameStarted(false);
+            this.setTextLabel(statusLabel,"Chúc mừng! Bạn đã chiến thắng!" );
             statusLabel.setForeground(Color.GREEN);
             for (int i = 0; i < 9; i++) {
                 for (int j = 0; j < 9; j++) {
@@ -241,15 +236,15 @@ public class SudokuView extends JFrame {
                 }
             }
             return true;
-        }else{
-            statusLabel.setText("Chưa hoàn thành, hãy thử lại!");
+        }
+            this.setTextLabel(statusLabel,"Chưa hoàn thành, hãy thử lại!");
             statusLabel.setForeground(Color.RED);
             return false;
-        }
     }
     public void saveGame(){
         if (isGameStarted)
         {
+            this.setTextLabel(statusLabel, "Đã lưu game thành công");
             isGameStarted= false;
             sudokuModel.saveGameToFile("src/saveGame/sudoku_save.txt","src/saveGame/fixedMatrix.txt" );
             for (int i = 0; i < 9; i++) {
@@ -259,6 +254,7 @@ public class SudokuView extends JFrame {
                     cells[i][j].setBackground(Color.white);
                 }
             }
+            this.setBackgroundButton(continueButton, Color.green);
         }
     }
     public void continueGame()
@@ -282,12 +278,36 @@ public class SudokuView extends JFrame {
                 }
             }
             loadSudokuBoard(5);
+            this.setBackgroundButton(continueButton, Color.gray);
         } else {
             System.out.println("Không thể tiếp tục game: Dữ liệu bị lỗi hoặc không tồn tại.");
         }
     }
-
+    public void loadSudokuBoard(boolean b) {
+        this.setButtonWhileGameStart();
+        this.setBackgroundButton(continueButton, Color.gray);
+        numberOfHints = 5;
+        sudokuModel.loadRandomBoard();
+        solution = this.sudokuModel.getSolution();
+        board = this.sudokuModel.getBoard();
+        isFixedValue = this.sudokuModel.getFixedCells();
+        noticeLabel.setText("Bạn còn " + this.getNumberOfHints() + " lượt gợi ý !");
+        for (int i = 0; i < 9; i++) {
+            for (int j = 0; j < 9; j++) {
+                if (board[i][j] != 0) {
+                    cells[i][j].setText((board[i][j])+"");
+                    cells[i][j].setEditable(false);
+                    cells[i][j].setBackground(Color.LIGHT_GRAY);
+                } else {
+                    cells[i][j].setText("");
+                    cells[i][j].setEditable(true);
+                    cells[i][j].setBackground(Color.white);
+                }
+            }
+        }
     }
+    }
+
 
 
 

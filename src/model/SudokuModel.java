@@ -23,6 +23,10 @@ public class SudokuModel {
     public int[][] getBoard() {
         return Board;
     }
+    public void setIsFixedCell(int r, int c, boolean b)
+    {
+        isFixedCell[r][c]= b;
+    }
 
     public int[][] getSolution() {
         return Solution;
@@ -30,6 +34,17 @@ public class SudokuModel {
 
     public void setBoard(int i, int j, int value) {
         Board[i][j] = value;
+    }
+    public boolean[][] getFixedCells() {
+        isFixedCell = new boolean[Size][Size];
+        for (int row = 0; row < Size; row++) {
+            for (int col = 0; col < Size; col++) {
+                if (Board[row][col] != 0) {
+                    isFixedCell[row][col] = true;
+                }
+            }
+        }
+        return isFixedCell;
     }
     public static int[][] readSinglePuzzleFromFile(String filePath) {
         int[][] board = new int[Size][Size];
@@ -141,21 +156,7 @@ public class SudokuModel {
         return true;
     }
 
-    public boolean[][] getFixedCells() {
-        isFixedCell = new boolean[Size][Size];
-        for (int row = 0; row < Size; row++) {
-            for (int col = 0; col < Size; col++) {
-                if (Board[row][col] != 0) {
-                    isFixedCell[row][col] = true;
-                }
-            }
-        }
-        return isFixedCell;
-    }
-    public void setIsFixedCell(int r, int c, boolean b)
-    {
-        isFixedCell[r][c]= b;
-    }
+
     public boolean endGame() {
         for (int i = 0 ; i < Size; i++)
         {
