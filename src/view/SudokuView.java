@@ -10,7 +10,7 @@ public class SudokuView extends JFrame implements ISudokuView {
     private JLabel statusLabel;
     private JLabel noticeLabel;
     private JButton startButton;
-    private JButton newLevelButton;
+    private JButton answerButton;
     private JButton checkButton;
     private JButton suggestButton;
     private JButton saveButton;
@@ -30,8 +30,8 @@ public class SudokuView extends JFrame implements ISudokuView {
         return continueButton;
     }
 
-    public JButton getNewLevelButton() {
-        return newLevelButton;
+    public JButton getAnswerButton(){
+        return answerButton;
     }
 
     public JLabel getNoticeLabel() {
@@ -75,7 +75,7 @@ public class SudokuView extends JFrame implements ISudokuView {
         startButton = createButton("<html>Chơi<br>mới</html>", Color.RED);
         checkButton = createButton("Kiểm tra", Color.LIGHT_GRAY);
         suggestButton = createButton("Gợi ý", Color.LIGHT_GRAY);
-        newLevelButton = createButton("<html>Đổi <br>màn</html>", Color.LIGHT_GRAY);
+        answerButton = createButton("<html>Xem <br>đáp án</html>", Color.LIGHT_GRAY);
         saveButton = createButton("<html>Lưu<br>Game</html>", Color.RED);
         continueButton = createButton("<html>Chơi<br>tiếp<html>", Color.GREEN);
     }
@@ -97,6 +97,11 @@ public class SudokuView extends JFrame implements ISudokuView {
     public void changeBGSuggestButton(Color color){
         suggestButton.setBackground(color);
         suggestButton.setOpaque(true);
+    }
+    @Override
+    public void changeBGAnswerButton(Color color){
+       answerButton.setBackground(color);
+        answerButton.setOpaque(true);
     }
 
     private void init() {
@@ -126,7 +131,7 @@ public class SudokuView extends JFrame implements ISudokuView {
         jPanel_button.setPreferredSize(new Dimension(200, 300));
         jPanel_button.add(checkButton);
         jPanel_button.add(startButton);
-        jPanel_button.add(newLevelButton);
+        jPanel_button.add(answerButton);
         jPanel_button.add(suggestButton);
         jPanel_button.add(saveButton);
         jPanel_button.add(continueButton);
@@ -186,7 +191,7 @@ public class SudokuView extends JFrame implements ISudokuView {
         startButton.addActionListener(e -> controller.handleNewGame());
         checkButton.addActionListener(e -> controller.handleCheckGame());
         suggestButton.addActionListener(e -> controller.handleHint());
-        //newLevelButton.addActionListener(e -> controller.handleNewLevel());
+        answerButton.addActionListener(e -> controller.handleShowAnswer());
         saveButton.addActionListener(e -> {
             try {
                 controller.handleSaveGame();

@@ -10,12 +10,12 @@ public interface ISudokuView {
         void setCellEditable(int row, int col, boolean editable);
         void highlightCell(int row, int col, Color color);
         void setGameControlsEnabled(boolean enabled);
-        //void resetBoard();
         void setController(SudokuController controller);
         String getTextFromCell(int row, int col);
         void changeBGStartButton(Color color);
         void changeBGCheckButton(Color color);
         void changeBGSuggestButton(Color color);
+        void changeBGAnswerButton(Color color);
         boolean getGameStarted();
 
 }
