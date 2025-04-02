@@ -67,6 +67,7 @@ public class SudokuModel {
     public boolean[][] loadContinueBoard() throws IOException {
         board = readPuzzleFromFile("src/saveGame/sudoku_save.txt");
         isFixedCell=readBooleanMatrixFromFile("src/saveGame/fixedMatrix.txt");
+        solution=readPuzzleFromFile("src/saveGame/solution_save.txt");
         return isFixedCell;
     }
     private int[][] readPuzzleFromFile(String filePath) throws IOException {
@@ -158,25 +159,14 @@ public class SudokuModel {
         }
         return true;
     }
-
-
-    public void saveGameToFile(String filePath, String fixedMatrixPath) throws IOException {
-        if (filePath == null || fixedMatrixPath == null) {
-            throw new IllegalArgumentException("Đường dẫn file không được null");
-        }
-        createParentDirectories(filePath);
-        createParentDirectories(fixedMatrixPath);
-        writeMatrixToFile(filePath, board);
-        writeBooleanMatrixToFile(fixedMatrixPath, isFixedCell);
-    }
-    private void createParentDirectories(String filePath) throws IOException {
+    public void createParentDirectories(String filePath) throws IOException {
         Path path = Paths.get(filePath);
         Path parent = path.getParent();
         if (parent != null) {
             Files.createDirectories(parent);
         }
     }
-    private void writeMatrixToFile(String filePath, int[][] matrix) throws IOException {
+    public void writeMatrixToFile(String filePath, int[][] matrix) throws IOException {
         try (BufferedWriter writer = Files.newBufferedWriter(Paths.get(filePath))) {
             for (int[] row : matrix) {
                 for (int value : row) {
@@ -186,7 +176,7 @@ public class SudokuModel {
             }
         }
     }
-    private void writeBooleanMatrixToFile(String filePath, boolean[][] matrix) throws IOException {
+    public void writeBooleanMatrixToFile(String filePath, boolean[][] matrix) throws IOException {
         try (BufferedWriter writer = Files.newBufferedWriter(Paths.get(filePath))) {
             for (boolean[] row : matrix) {
                 for (boolean value : row) {

@@ -21,43 +21,6 @@ public class SudokuView extends JFrame implements ISudokuView {
     public JTextField[][] getCells() {
         return cells;
     }
-
-    public JButton getCheckButton() {
-        return checkButton;
-    }
-
-    public JButton getContinueButton() {
-        return continueButton;
-    }
-
-    public JButton getAnswerButton(){
-        return answerButton;
-    }
-
-    public JLabel getNoticeLabel() {
-        return noticeLabel;
-    }
-
-    public JPanel getPanel() {
-        return panel;
-    }
-
-    public JButton getSaveButton() {
-        return saveButton;
-    }
-
-    public JButton getStartButton() {
-        return startButton;
-    }
-
-    public JLabel getStatusLabel() {
-        return statusLabel;
-    }
-
-    public JButton getSuggestButton() {
-        return suggestButton;
-    }
-
     public SudokuView() {
         init();
     }

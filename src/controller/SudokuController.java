@@ -10,6 +10,7 @@ public class SudokuController {
     private ISudokuView view;
     private boolean[][] fixedCells;
     private int [][] solution;
+    private  int [][] board;
 
     public SudokuController(SudokuModel model, ISudokuView view) {
         this.model = model;
@@ -101,9 +102,7 @@ public class SudokuController {
     public void handleHint() {
        if (view.getGameStarted()){
            int numberOfHints = this.model.getNumberOfHints();
-           if(numberOfHints == 0){
-               return;
-           }else {
+           if(numberOfHints != 0){
                Random rand = new Random();
                int r, c;
                do {
@@ -121,22 +120,27 @@ public class SudokuController {
                    view.changeBGSuggestButton(Color.gray);
                    view.changeBGAnswerButton(Color.yellow);
                }
-
            }
        }
     }
     public void handleSaveGame() throws IOException {
         if (view.getGameStarted()){
+            board = model.getBoard();
            view.showMessage("Đã lưu game thành công", Color.green);
             view.setGameControlsEnabled(false);
-            model.saveGameToFile("src/saveGame/sudoku_save.txt","src/saveGame/fixedMatrix.txt" );
+            model.createParentDirectories("src/saveGame/sudoku_save.txt");
+            model.createParentDirectories("src/saveGame/solution_save.txt");
+            model.createParentDirectories("src/saveGame/fixedMatrix.txt");
+            model.writeMatrixToFile("src/saveGame/sudoku_save.txt", board);
+            model.writeMatrixToFile("src/saveGame/solution_save.txt", solution);
+            model.writeBooleanMatrixToFile("src/saveGame/fixedMatrix.txt", fixedCells);
+            }
             for (int i = 0; i < 9; i++) {
                 for (int j = 0; j < 9; j++) {
                     view.updateCell(i, j, 0, false);
                     view.setCellEditable(i, j, false);
                 }
             }
-        }
     }
     public void handleContinueGame() throws IOException {
         if(!view.getGameStarted()){
