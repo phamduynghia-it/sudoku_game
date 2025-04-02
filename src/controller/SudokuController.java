@@ -156,10 +156,11 @@ public class SudokuController {
                     view.highlightCell(i, j, Color.GREEN);
                 }
             }
+            view.changeBGCheckButton(Color.gray);
+            view.changeBGStartButton(Color.red);
+            view.changeBGAnswerButton(Color.gray);
+            view.setGameControlsEnabled(false);
         }
-        view.changeBGCheckButton(Color.gray);
-        view.changeBGStartButton(Color.red);
-        view.changeBGAnswerButton(Color.gray);
-        view.setGameControlsEnabled(false);
+
         }
 }

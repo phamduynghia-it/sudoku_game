@@ -114,6 +114,13 @@ public class SudokuView extends JFrame implements ISudokuView {
         panel.setLayout(new GridLayout(9, 9));
         panel.setPreferredSize(new Dimension(450, 450));
 
+
+        Color[] blockColors = {
+                new Color(255, 235, 205),
+                new Color(220, 245, 245),
+                new Color(255, 228, 225)
+        };
+
         for (int i = 0; i < 9; i++) {
             for (int j = 0; j < 9; j++) {
                 cells[i][j] = new JTextField();
@@ -121,9 +128,23 @@ public class SudokuView extends JFrame implements ISudokuView {
                 cells[i][j].setHorizontalAlignment(JTextField.CENTER);
                 cells[i][j].setFont(new Font("Arial", Font.BOLD, 20));
                 cells[i][j].setEditable(false);
+
+
+                int blockRow = i / 3;
+                int blockCol = j / 3;
+                int colorIndex = (blockRow + blockCol) % blockColors.length;
+                cells[i][j].setBackground(blockColors[colorIndex]);
+
+
+                cells[i][j].setBorder(BorderFactory.createCompoundBorder(
+                        BorderFactory.createLineBorder(Color.DARK_GRAY, 1),
+                        BorderFactory.createEmptyBorder(5, 5, 5, 5)
+                ));
+
                 panel.add(cells[i][j]);
             }
         }
+        panel.setBorder(BorderFactory.createMatteBorder(2, 2, 2, 1, Color.BLACK));
         // tao cac nut chuc nang
         this.initializeButtons();
         JPanel jPanel_button = new JPanel();
