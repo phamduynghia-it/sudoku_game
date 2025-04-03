@@ -16,6 +16,7 @@ public interface ISudokuView {
         void changeBGCheckButton(Color color);
         void changeBGSuggestButton(Color color);
         void changeBGAnswerButton(Color color);
+        void changeBGSaveButton(Color color);
         boolean getGameStarted();
 
 }

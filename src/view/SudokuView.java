@@ -66,7 +66,11 @@ public class SudokuView extends JFrame implements ISudokuView {
        answerButton.setBackground(color);
         answerButton.setOpaque(true);
     }
-
+    @Override
+    public void changeBGSaveButton(Color color){
+        saveButton.setBackground(color);
+        saveButton.setOpaque(true);
+    }
     private void init() {
         this.setTitle("Sudoku Game");
         setSize(700, 600);
@@ -78,36 +82,56 @@ public class SudokuView extends JFrame implements ISudokuView {
         panel.setPreferredSize(new Dimension(450, 450));
 
 
+        // Màu sắc cho các khối 3x3 (màu pastel nhẹ nhàng)
         Color[] blockColors = {
-                new Color(255, 235, 205),
-                new Color(220, 245, 245),
-                new Color(255, 228, 225)
+                new Color(255, 255, 204), // Vàng nhạt
+                new Color(204, 255, 204), // Xanh lá nhạt
+                new Color(204, 255, 255), // Xanh da trời nhạt
+                new Color(255, 204, 255), // Hồng nhạt
+                new Color(255, 204, 204), // Đỏ nhạt
+                new Color(204, 204, 255), // Tím nhạt
+                new Color(255, 255, 204), // Vàng nhạt (lặp lại)
+                new Color(204, 255, 204), // Xanh lá nhạt (lặp lại)
+                new Color(204, 255, 255)  // Xanh da trời nhạt (lặp lại)
         };
 
         for (int i = 0; i < 9; i++) {
             for (int j = 0; j < 9; j++) {
                 cells[i][j] = new JTextField();
+
+
                 cells[i][j].setPreferredSize(new Dimension(50, 50));
                 cells[i][j].setHorizontalAlignment(JTextField.CENTER);
-                cells[i][j].setFont(new Font("Arial", Font.BOLD, 20));
-                cells[i][j].setEditable(false);
+                cells[i][j].setFont(new Font("Arial", Font.BOLD, 24)); // Font lớn hơn
 
 
-                int blockRow = i / 3;
-                int blockCol = j / 3;
-                int colorIndex = (blockRow + blockCol) % blockColors.length;
-                cells[i][j].setBackground(blockColors[colorIndex]);
+                int blockIndex = (i / 3) * 3 + (j / 3); // 0-8
+                cells[i][j].setBackground(blockColors[blockIndex]);
 
+
+                int topBorder = (i % 3 == 0) ? 3 : 1;
+                int leftBorder = (j % 3 == 0) ? 3 : 1;
+                int bottomBorder = (i % 3 == 2) ? 3 : 1;
+                int rightBorder = (j % 3 == 2) ? 3 : 1;
 
                 cells[i][j].setBorder(BorderFactory.createCompoundBorder(
-                        BorderFactory.createLineBorder(Color.DARK_GRAY, 1),
+                        BorderFactory.createMatteBorder(topBorder, leftBorder, bottomBorder, rightBorder, Color.black),
                         BorderFactory.createEmptyBorder(5, 5, 5, 5)
                 ));
+
+                // Thiết lập màu chữ
+                cells[i][j].setForeground(Color.BLACK);
+
+                // Không cho edit ban đầu
+                cells[i][j].setEditable(false);
 
                 panel.add(cells[i][j]);
             }
         }
-        panel.setBorder(BorderFactory.createMatteBorder(2, 2, 2, 1, Color.BLACK));
+
+// Thiết lập background cho panel chính
+        panel.setBackground(Color.WHITE);
+        panel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
         // tao cac nut chuc nang
         this.initializeButtons();
         JPanel jPanel_button = new JPanel();

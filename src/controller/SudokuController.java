@@ -16,6 +16,13 @@ public class SudokuController {
         this.model = model;
         this.view = view;
     }
+    public void changeBGWhileGameStarted(){
+        view.changeBGCheckButton(Color.green);
+        view.changeBGStartButton(Color.gray);
+        view.changeBGSuggestButton(Color.yellow);
+        view.changeBGAnswerButton(Color.gray);
+        view.changeBGSaveButton(Color.red);
+    }
 
     public void updateViewFromModel() {
         int[][] board = this.model.getBoard();
@@ -49,10 +56,7 @@ public class SudokuController {
             view.setGameControlsEnabled(true);
             view.showMessage("Game mới đã bắt đầu!", Color.BLUE);
             view.showNumberOfHints("Bạn còn " + model.getNumberOfHints() + " lượt gợi ý!", Color.black);
-            view.changeBGCheckButton(Color.green);
-            view.changeBGStartButton(Color.gray);
-            view.changeBGSuggestButton(Color.yellow);
-            view.changeBGAnswerButton(Color.gray);
+            changeBGWhileGameStarted();
         } catch (IOException ex) {
             view.showMessage("Lỗi khi tải game mới: " + ex.getMessage(), Color.RED);
         }
@@ -134,16 +138,17 @@ public class SudokuController {
             model.writeMatrixToFile("src/saveGame/sudoku_save.txt", board);
             model.writeMatrixToFile("src/saveGame/solution_save.txt", solution);
             model.writeBooleanMatrixToFile("src/saveGame/fixedMatrix.txt", fixedCells);
-            }
             for (int i = 0; i < 9; i++) {
                 for (int j = 0; j < 9; j++) {
                     view.updateCell(i, j, 0, false);
                     view.setCellEditable(i, j, false);
                 }
             }
+            }
     }
     public void handleContinueGame() throws IOException {
         if(!view.getGameStarted()){
+            changeBGWhileGameStarted();
             view.setGameControlsEnabled(true);
             view.showMessage("Hãy giải Sudoku !", Color.green);
             boolean[][] fixedBoard = model.loadContinueBoard();
@@ -163,6 +168,7 @@ public class SudokuController {
             view.changeBGCheckButton(Color.gray);
             view.changeBGStartButton(Color.red);
             view.changeBGAnswerButton(Color.gray);
+            view.changeBGSaveButton(Color.gray);
             view.setGameControlsEnabled(false);
         }
 
