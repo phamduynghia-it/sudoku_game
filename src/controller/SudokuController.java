@@ -178,9 +178,11 @@ public class SudokuController {
                 if (!view.getDarkMode()){
                     view.setDarkMode(true);
                     view.changeBGDarkModeButton(Color.white);
+                    view.setTextDarkModeButton("<html>chế độ <br>sáng<html>", Color.black);
                 }else{
                     view.setDarkMode(false);
                     view.changeBGDarkModeButton(Color.black);
+                    view.setTextDarkModeButton("<html>chế độ <br>tối<html>", Color.white);
                 }
                 loadSudokuBoard();
             }

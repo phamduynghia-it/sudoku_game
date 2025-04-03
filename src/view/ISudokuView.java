@@ -2,8 +2,8 @@ package view;
 import controller.SudokuController;
 import java.awt.Color;
 
-
 public interface ISudokuView {
+        void setTextDarkModeButton(String s, Color a);
         void changeBGDarkModeButton(Color color);
         void updateCell(int row, int col, int value, boolean isFixed, boolean darkMode);
         void showMessage(String message, Color color);

@@ -20,6 +20,8 @@ public class SudokuView extends JFrame implements ISudokuView {
     private JPanel panel;
     private boolean isGameStarted = false;
     private boolean isDarkMode = false;
+    private Color cellColor = new Color(255, 255, 204);
+    private Color darkModeCellColor = new Color(210, 180, 140);
 
     public JTextField[][] getCells() {
         return cells;
@@ -182,18 +184,22 @@ public class SudokuView extends JFrame implements ISudokuView {
     public void setDarkMode(boolean isDarkMode){
        this.isDarkMode = isDarkMode;
     }
-
+    @Override
+    public void setTextDarkModeButton(String s, Color a){
+        darkModeButton.setText(s);
+        darkModeButton.setForeground(a);
+    }
     @Override
     public void updateCell(int row, int col, int value, boolean isFixed, boolean darkMode) {
         if (!darkMode){
             cells[row][col].setText(value == 0 ? "" : String.valueOf(value));
             cells[row][col].setEditable(!isFixed);
-            cells[row][col].setBackground(isFixed ? Color.LIGHT_GRAY : Color.WHITE);
+            cells[row][col].setBackground(isFixed ? cellColor : Color.WHITE);
             cells[row][col].setForeground(Color.BLACK);
         }else{
             cells[row][col].setText(value == 0 ? "" : String.valueOf(value));
             cells[row][col].setEditable(!isFixed);
-            cells[row][col].setBackground(isFixed ? Color.LIGHT_GRAY : Color.BLACK);
+            cells[row][col].setBackground(isFixed ? darkModeCellColor : Color.BLACK);
             cells[row][col].setForeground(Color.white);
         }
     }
