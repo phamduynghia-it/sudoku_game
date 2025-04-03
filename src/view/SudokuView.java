@@ -1,6 +1,7 @@
 package view;
 import controller.SudokuController;
 import javax.swing.*;
+import javax.swing.border.Border;
 import java.awt.*;
 import java.io.IOException;
 
@@ -15,8 +16,10 @@ public class SudokuView extends JFrame implements ISudokuView {
     private JButton suggestButton;
     private JButton saveButton;
     private JButton continueButton;
+    private JButton darkModeButton;
     private JPanel panel;
-    private Boolean isGameStarted = false;
+    private boolean isGameStarted = false;
+    private boolean isDarkMode = false;
 
     public JTextField[][] getCells() {
         return cells;
@@ -41,6 +44,8 @@ public class SudokuView extends JFrame implements ISudokuView {
         answerButton = createButton("<html>Xem <br>đáp án</html>", Color.LIGHT_GRAY);
         saveButton = createButton("<html>Lưu<br>Game</html>", Color.RED);
         continueButton = createButton("<html>Chơi<br>tiếp<html>", Color.GREEN);
+        darkModeButton=createButton("<html>chế độ <br>tối<html>", Color.BLACK);
+        darkModeButton.setForeground(Color.white);
     }
     @Override
     public boolean getGameStarted() {
@@ -71,6 +76,11 @@ public class SudokuView extends JFrame implements ISudokuView {
         saveButton.setBackground(color);
         saveButton.setOpaque(true);
     }
+    @Override
+    public void changeBGDarkModeButton(Color color){
+        darkModeButton.setBackground(color);
+        darkModeButton.setOpaque(true);
+    }
     private void init() {
         this.setTitle("Sudoku Game");
         setSize(700, 600);
@@ -82,7 +92,6 @@ public class SudokuView extends JFrame implements ISudokuView {
         panel.setPreferredSize(new Dimension(450, 450));
 
 
-        // Màu sắc cho các khối 3x3 (màu pastel nhẹ nhàng)
         Color[] blockColors = {
                 new Color(255, 255, 204), // Vàng nhạt
                 new Color(204, 255, 204), // Xanh lá nhạt
@@ -102,10 +111,10 @@ public class SudokuView extends JFrame implements ISudokuView {
 
                 cells[i][j].setPreferredSize(new Dimension(50, 50));
                 cells[i][j].setHorizontalAlignment(JTextField.CENTER);
-                cells[i][j].setFont(new Font("Arial", Font.BOLD, 24)); // Font lớn hơn
+                cells[i][j].setFont(new Font("Arial", Font.BOLD, 24));
 
 
-                int blockIndex = (i / 3) * 3 + (j / 3); // 0-8
+                int blockIndex = (i / 3) * 3 + (j / 3);
                 cells[i][j].setBackground(blockColors[blockIndex]);
 
 
@@ -115,27 +124,27 @@ public class SudokuView extends JFrame implements ISudokuView {
                 int rightBorder = (j % 3 == 2) ? 3 : 1;
 
                 cells[i][j].setBorder(BorderFactory.createCompoundBorder(
-                        BorderFactory.createMatteBorder(topBorder, leftBorder, bottomBorder, rightBorder, Color.black),
+                        BorderFactory.createMatteBorder(topBorder, leftBorder, bottomBorder, rightBorder, Color.DARK_GRAY),
                         BorderFactory.createEmptyBorder(5, 5, 5, 5)
                 ));
 
-                // Thiết lập màu chữ
+
                 cells[i][j].setForeground(Color.BLACK);
 
-                // Không cho edit ban đầu
+
                 cells[i][j].setEditable(false);
 
                 panel.add(cells[i][j]);
             }
         }
 
-// Thiết lập background cho panel chính
-        panel.setBackground(Color.WHITE);
+
+        panel.setBackground(Color.white);
         panel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
         // tao cac nut chuc nang
         this.initializeButtons();
         JPanel jPanel_button = new JPanel();
-        jPanel_button.setLayout(new GridLayout(3, 2, 5, 5));
+        jPanel_button.setLayout(new GridLayout(4, 2, 5, 5));
         jPanel_button.setPreferredSize(new Dimension(200, 300));
         jPanel_button.add(checkButton);
         jPanel_button.add(startButton);
@@ -143,6 +152,7 @@ public class SudokuView extends JFrame implements ISudokuView {
         jPanel_button.add(suggestButton);
         jPanel_button.add(saveButton);
         jPanel_button.add(continueButton);
+        jPanel_button.add(darkModeButton);
 
 
         statusLabel = new JLabel("Hãy giải Sudoku!", SwingConstants.CENTER);
@@ -165,10 +175,27 @@ public class SudokuView extends JFrame implements ISudokuView {
 
     }
     @Override
-    public void updateCell(int row, int col, int value, boolean isFixed) {
-        cells[row][col].setText(value == 0 ? "" : String.valueOf(value));
-        cells[row][col].setEditable(!isFixed);
-        cells[row][col].setBackground(isFixed ? Color.LIGHT_GRAY : Color.WHITE);
+    public boolean getDarkMode(){
+        return isDarkMode;
+    }
+    @Override
+    public void setDarkMode(boolean isDarkMode){
+       this.isDarkMode = isDarkMode;
+    }
+
+    @Override
+    public void updateCell(int row, int col, int value, boolean isFixed, boolean darkMode) {
+        if (!darkMode){
+            cells[row][col].setText(value == 0 ? "" : String.valueOf(value));
+            cells[row][col].setEditable(!isFixed);
+            cells[row][col].setBackground(isFixed ? Color.LIGHT_GRAY : Color.WHITE);
+            cells[row][col].setForeground(Color.BLACK);
+        }else{
+            cells[row][col].setText(value == 0 ? "" : String.valueOf(value));
+            cells[row][col].setEditable(!isFixed);
+            cells[row][col].setBackground(isFixed ? Color.LIGHT_GRAY : Color.BLACK);
+            cells[row][col].setForeground(Color.white);
+        }
     }
 
     @Override
@@ -214,10 +241,26 @@ public class SudokuView extends JFrame implements ISudokuView {
                 throw new RuntimeException(ex);
             }
         });
+        darkModeButton.addActionListener(e-> controller.handleDarkMode());
     }
     @Override
     public String getTextFromCell(int row, int col){
         return cells[row][col].getText();
+    }
+    @Override
+    public void flashCellBorder(int row, int col, Color color, int durationMillis) {
+        JTextField cell = cells[row][col];
+        Border originalBorder = cell.getBorder();
+
+
+        Border redBorder = BorderFactory.createLineBorder(color, 5);
+        cell.setBorder(redBorder);
+
+
+        new Timer(durationMillis, e -> {
+            cell.setBorder(originalBorder);
+            ((Timer)e.getSource()).stop();
+        }).start();
     }
 }
 

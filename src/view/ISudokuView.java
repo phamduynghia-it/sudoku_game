@@ -4,7 +4,8 @@ import java.awt.Color;
 
 
 public interface ISudokuView {
-        void updateCell(int row, int col, int value, boolean isFixed);
+        void changeBGDarkModeButton(Color color);
+        void updateCell(int row, int col, int value, boolean isFixed, boolean darkMode);
         void showMessage(String message, Color color);
         void showNumberOfHints(String message, Color color);
         void setCellEditable(int row, int col, boolean editable);
@@ -18,5 +19,7 @@ public interface ISudokuView {
         void changeBGAnswerButton(Color color);
         void changeBGSaveButton(Color color);
         boolean getGameStarted();
-
+        boolean getDarkMode();
+        void setDarkMode(boolean isDarkMode);
+        void flashCellBorder(int row, int col, Color color, int durationMillis);
 }

@@ -23,27 +23,27 @@ public class SudokuController {
         view.changeBGAnswerButton(Color.gray);
         view.changeBGSaveButton(Color.red);
     }
-
-    public void updateViewFromModel() {
-        int[][] board = this.model.getBoard();
-        fixedCells = this.model.getFixedCells();
-        solution = this.model.getSolution();
+    public void loadSudokuBoard(){
+        boolean isDarkMode = view.getDarkMode();
         for (int i = 0; i < 9; i++) {
             for (int j = 0; j < 9; j++) {
-                this.view.updateCell(i, j, board[i][j], board[i][j] != 0);
+                this.view.updateCell(i, j, board[i][j], fixedCells[i][j], isDarkMode);
             }
         }
+    }
+    public void updateViewFromModel() {
+        board = this.model.getBoard();
+        solution = this.model.getSolution();
+        fixedCells = this.model.getFixedCells();
+       loadSudokuBoard();
     }
     public void updateViewFromModel(boolean [][] fixed) {
         int[][] board = this.model.getBoard();
         fixedCells = fixed;
+        boolean isDarkMode = view.getDarkMode();
         for (int i = 0; i < 9; i++) {
             for (int j = 0; j < 9; j++) {
-                this.view.updateCell(i, j, board[i][j], fixedCells[i][j]);
-
-                if (board[i][j] != 0 && !fixedCells[i][j]) {
-                    this.view.highlightCell(i, j, Color.GREEN);
-                }
+                this.view.updateCell(i, j, board[i][j], fixedCells[i][j], isDarkMode);
             }
         }
     }
@@ -63,48 +63,46 @@ public class SudokuController {
     }
 
     public void handleCheckGame() {
-       if (view.getGameStarted()){
-           for (int i = 0; i < 9; i++) {
-               for (int j = 0; j < 9; j++) {
-                   this.view.getTextFromCell(i, j);
-                   if (!fixedCells[i][j]) {
-                       String input = this.view.getTextFromCell(i, j).trim();
-                       if (!input.isEmpty()) {
-                           try {
-                               int temp = Integer.parseInt(input);
-                               if (temp >= 10 || temp <= 0){
-                                   view.showMessage("Chỉ được phép nhập số từ 1-9", Color.RED);
-                               }
-                               if (this.model.isValidMove(i, j, temp) && temp < 10 && temp > 0) {
-                                   this.view.highlightCell(i, j, Color.green);
-                                   this.model.setBoard(i, j, temp);
-                               } else {
-                                   this.view.highlightCell(i, j, Color.red);
-                               }
-                           } catch (NumberFormatException e) {
-                               this.view.highlightCell(i, j, Color.red);
-                           }
-                       } else {
-                           this.view.highlightCell(i, j, Color.white);
-                           this.model.setBoard(i, j, 0);
-                       }
-                   }
-               }
-           }
-           if (model.isGameComplete()) {
-               for (int i = 0; i < 9; i++) {
-                   for (int j = 0; j < 9; j++) {
-                       this.view.setCellEditable(i, j, false);
-                       this.view.highlightCell(i, j, Color.green);
-                   }
-               }
-               view.showMessage("Chúc mừng! Bạn đã hoàn thành!", Color.GREEN);
-           }
-       }
+        if (view.getGameStarted()) {
+            for (int i = 0; i < 9; i++) {
+                for (int j = 0; j < 9; j++) {
+                    if (!fixedCells[i][j]) {
+                        String input = this.view.getTextFromCell(i, j).trim();
+
+                        if (!input.isEmpty()) {
+                            try {
+                                int temp = Integer.parseInt(input);
+                                if (temp >= 10 || temp <= 0) {
+                                    view.showMessage("Chỉ được phép nhập số từ 1-9", Color.RED);
+                                    view.flashCellBorder(i, j, Color.RED, 200);
+
+                                }
+                                else if (!this.model.isValidMove(i, j, temp)) {
+                                    view.flashCellBorder(i, j, Color.RED, 200);
+
+                                } else {
+                                    this.model.setBoard(i, j, temp);
+                                }
+                            } catch (NumberFormatException e) {
+                                view.flashCellBorder(i, j, Color.RED, 200);
+
+                            }
+                        } else {
+                            this.model.setBoard(i, j, 0);
+                        }
+                    }
+                }
+            }
+
+            if (model.isGameComplete()) {
+                view.showMessage("Chúc mừng! Bạn đã hoàn thành!", Color.GREEN);
+            }
+        }
     }
 
     public void handleHint() {
        if (view.getGameStarted()){
+           boolean isDarkMode = view.getDarkMode();
            int numberOfHints = this.model.getNumberOfHints();
            if(numberOfHints != 0){
                Random rand = new Random();
@@ -116,7 +114,7 @@ public class SudokuController {
                this.model.setBoard(r, c, solution[r][c]);
                this.fixedCells[r][c] = true;
                this.model.setIsFixedCell(r, c ,true);
-               this.view.updateCell(r, c, solution[r][c], true);
+               this.view.updateCell(r, c, solution[r][c], true, isDarkMode);
                this.view.highlightCell(r, c, Color.yellow);
                this.model.setNumberOfHints(--numberOfHints);
                view.showNumberOfHints("Bạn còn " + numberOfHints + " lượt gợi ý!", Color.black);
@@ -129,6 +127,7 @@ public class SudokuController {
     }
     public void handleSaveGame() throws IOException {
         if (view.getGameStarted()){
+            boolean isDarkMode = view.getDarkMode();
             board = model.getBoard();
            view.showMessage("Đã lưu game thành công", Color.green);
             view.setGameControlsEnabled(false);
@@ -140,7 +139,7 @@ public class SudokuController {
             model.writeBooleanMatrixToFile("src/saveGame/fixedMatrix.txt", fixedCells);
             for (int i = 0; i < 9; i++) {
                 for (int j = 0; j < 9; j++) {
-                    view.updateCell(i, j, 0, false);
+                    view.updateCell(i, j, 0, false, isDarkMode);
                     view.setCellEditable(i, j, false);
                 }
             }
@@ -158,10 +157,11 @@ public class SudokuController {
     public void handleShowAnswer(){
         if (model.getNumberOfHints() == 0 && view.getGameStarted())
         {
+            boolean isDarkMode = view.getDarkMode();
             int [][] solution = model.getSolution();
             for (int i = 0; i < 9; i++) {
                 for (int j = 0; j < 9; j++) {
-                    this.view.updateCell(i, j, solution[i][j], solution[i][j] != 0);
+                    this.view.updateCell(i, j, solution[i][j], solution[i][j] != 0, isDarkMode);
                     view.highlightCell(i, j, Color.GREEN);
                 }
             }
@@ -172,5 +172,17 @@ public class SudokuController {
             view.setGameControlsEnabled(false);
         }
 
+        }
+        public void  handleDarkMode(){
+            if (view.getGameStarted()){
+                if (!view.getDarkMode()){
+                    view.setDarkMode(true);
+                    view.changeBGDarkModeButton(Color.white);
+                }else{
+                    view.setDarkMode(false);
+                    view.changeBGDarkModeButton(Color.black);
+                }
+                loadSudokuBoard();
+            }
         }
 }
