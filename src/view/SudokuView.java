@@ -203,7 +203,6 @@ public class SudokuView extends JFrame implements ISudokuView {
             cells[row][col].setForeground(Color.white);
         }
     }
-
     @Override
     public void showMessage(String message, Color color) {
         statusLabel.setText(message);
@@ -241,11 +240,7 @@ public class SudokuView extends JFrame implements ISudokuView {
             }
         });
         continueButton.addActionListener(e -> {
-            try {
-                controller.handleContinueGame();
-            } catch (IOException ex) {
-                throw new RuntimeException(ex);
-            }
+            controller.handleContinueGame();
         });
         darkModeButton.addActionListener(e-> controller.handleDarkMode());
     }
