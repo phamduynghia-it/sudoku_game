@@ -1,10 +1,5 @@
 package model;
 
-import java.io.*;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.Random;
 
 public class SudokuModel {
     private static final int SIZE = 9;
@@ -39,97 +34,30 @@ public class SudokuModel {
     public void setBoard(int i, int j, int value) {
         board[i][j] = value;
     }
+    public void setBoard(int [][] board)
+    {
+        this.board = board;
+    }
+
+    public void setSolution(int[][] solution) {
+        this.solution = solution;
+    }
+
     public boolean[][] getFixedCells() {
-        isFixedCell = new boolean[SIZE][SIZE];
-        for (int row = 0; row < SIZE; row++) {
-            for (int col = 0; col < SIZE; col++) {
-                if (board[row][col] != 0) {
-                    isFixedCell[row][col] = true;
-                }
-            }
-        }
         return isFixedCell;
     }
-    public void loadRandomBoard() throws IOException {
-        Random rand = new Random();
-        int game = rand.nextInt(5) + 1;
-        Path boardPath = Paths.get("src", "Level", String.format("sudokumatrix%d.txt", game));
-        Path solutionPath = Paths.get("src", "Level", String.format("sudokumatrixSolution%d.txt", game));
-
-        if (!Files.exists(boardPath) || !Files.exists(solutionPath)) {
-            throw new IOException("Không tìm thấy file dữ liệu Sudoku");
-        }
-
-        board = readPuzzleFromFile(boardPath.toString());
-        solution = readPuzzleFromFile(solutionPath.toString());
-        updateFixedCells();
+    public int getSize()
+    {
+        return SIZE;
     }
-    public boolean[][] loadContinueBoard() throws IOException {
-        board = readPuzzleFromFile("src/saveGame/sudoku_save.txt");
-        isFixedCell=readBooleanMatrixFromFile("src/saveGame/fixedMatrix.txt");
-        solution=readPuzzleFromFile("src/saveGame/solution_save.txt");
-        return isFixedCell;
+    public void setFixedCells(boolean [][] fixedCells) {
+        this.isFixedCell = fixedCells;
     }
-    private int[][] readPuzzleFromFile(String filePath) throws IOException {
-        int[][] puzzle = new int[SIZE][SIZE];
-        try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) {
-            String line;
-            int row = 0;
 
-            while ((line = reader.readLine()) != null && row < SIZE) {
-                String[] values = line.trim().split("\\s+");
-                if (values.length != SIZE) {
-                    throw new IOException("Định dạng file không hợp lệ - số cột không đúng");
-                }
-                for (int col = 0; col < SIZE; col++) {
-                    puzzle[row][col] = Integer.parseInt(values[col]);
-                }
-                row++;
-            }
 
-            if (row < SIZE) {
-                throw new IOException("File không đủ dữ liệu - thiếu hàng");
-            }
-        } catch (NumberFormatException e) {
-            throw new IOException("Dữ liệu không phải số nguyên", e);
-        }
-        return puzzle;
-    }
-    private boolean[][] readBooleanMatrixFromFile(String filePath) throws IOException {
-        boolean[][] boolBoard = new boolean[SIZE][SIZE];
-        try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) {
-            String line;
-            int row = 0;
 
-            while ((line = reader.readLine()) != null && row < SIZE) {
-                String[] values = line.trim().split("\\s+");
-                if (values.length != SIZE) {
-                    throw new IOException("Định dạng file không hợp lệ - số cột không đúng");
-                }
-                for (int col = 0; col < SIZE; col++) {
-                    if (!values[col].equals("0") && !values[col].equals("1")) {
-                        throw new IOException("Dữ liệu boolean không hợp lệ");
-                    }
-                    boolBoard[row][col] = values[col].equals("1");
-                }
-                row++;
-            }
-
-            if (row < SIZE) {
-                throw new IOException("File không đủ dữ liệu - thiếu hàng");
-            }
-        }
-        return boolBoard;
-    }
-    private void updateFixedCells() {
-        for (int i = 0; i < SIZE; i++) {
-            for (int j = 0; j < SIZE; j++) {
-                isFixedCell[i][j] = (board[i][j] != 0);
-            }
-        }
-    }
     public boolean isValidMove(int row, int column, int value) {
-        // Kiểm tra hàng và cột
+
         for (int i = 0; i < SIZE; i++) {
             if ((board[row][i] == value && i != column) ||
                     (board[i][column] == value && i != row)) {
@@ -137,7 +65,7 @@ public class SudokuModel {
             }
         }
 
-        // Kiểm tra ô 3x3
+
         int boxRow = row - row % BOX_SIZE;
         int boxCol = column - column % BOX_SIZE;
 
@@ -159,32 +87,6 @@ public class SudokuModel {
         }
         return true;
     }
-    public void createParentDirectories(String filePath) throws IOException {
-        Path path = Paths.get(filePath);
-        Path parent = path.getParent();
-        if (parent != null) {
-            Files.createDirectories(parent);
-        }
-    }
-    public void writeMatrixToFile(String filePath, int[][] matrix) throws IOException {
-        try (BufferedWriter writer = Files.newBufferedWriter(Paths.get(filePath))) {
-            for (int[] row : matrix) {
-                for (int value : row) {
-                    writer.write(value + " ");
-                }
-                writer.newLine();
-            }
-        }
-    }
-    public void writeBooleanMatrixToFile(String filePath, boolean[][] matrix) throws IOException {
-        try (BufferedWriter writer = Files.newBufferedWriter(Paths.get(filePath))) {
-            for (boolean[] row : matrix) {
-                for (boolean value : row) {
-                    writer.write(value ? "1 " : "0 ");
-                }
-                writer.newLine();
-            }
-        }
-    }
+
 
 }

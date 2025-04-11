@@ -2,7 +2,13 @@ package controller;
 import model.SudokuModel;
 import view.ISudokuView;
 import java.awt.*;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.FileReader;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Random;
 
 public class SudokuController {
@@ -16,7 +22,16 @@ public class SudokuController {
         this.model = model;
         this.view = view;
     }
-
+    public boolean[][] updateFixedCells(){
+        int SIZE = model.getSize();
+        boolean[][] tempBoard = new boolean[9][9];
+        for (int i = 0; i < SIZE; i++) {
+            for (int j = 0; j < SIZE; j++) {
+                tempBoard[i][j] = (board[i][j] != 0);
+            }
+        }
+        return tempBoard;
+    }
     public void changeBGWhileGameStarted() {
         view.changeBGCheckButton(Color.green);
         view.changeBGStartButton(Color.gray);
@@ -24,7 +39,115 @@ public class SudokuController {
         view.changeBGAnswerButton(Color.gray);
         view.changeBGSaveButton(Color.red);
     }
+    public void setModelBoard(boolean[][] fixedCells, int[][] board, int[][] solution){
+        this.model.setFixedCells(fixedCells);
+        this.model.setBoard(board);
+        this.model.setSolution(solution);
+    }
+    private int [][] readPuzzleFromFile(String filePath) throws IOException {
+        int SIZE = model.getSize();
+        int[][] tempBoard = new int[SIZE][SIZE];
+        try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) {
+            String line;
+            int row = 0;
 
+            while ((line = reader.readLine()) != null && row < SIZE) {
+                String[] values = line.trim().split("\\s+");
+                if (values.length != SIZE) {
+                    throw new IOException("Định dạng file không hợp lệ - số cột không đúng");
+                }
+                for (int col = 0; col < SIZE; col++) {
+                    tempBoard[row][col] = Integer.parseInt(values[col]);
+                }
+                row++;
+            }
+
+            if (row < SIZE) {
+                throw new IOException("File không đủ dữ liệu - thiếu hàng");
+            }
+        } catch (NumberFormatException e) {
+            throw new IOException("Dữ liệu không phải số nguyên", e);
+        }
+        return tempBoard;
+    }
+    private boolean[][] readBooleanMatrixFromFile(String filePath) throws IOException {
+        int SIZE = model.getSize();
+        fixedCells = new boolean[SIZE][SIZE];
+        try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) {
+            String line;
+            int row = 0;
+
+            while ((line = reader.readLine()) != null && row < SIZE) {
+                String[] values = line.trim().split("\\s+");
+                if (values.length != SIZE) {
+                    throw new IOException("Định dạng file không hợp lệ - số cột không đúng");
+                }
+                for (int col = 0; col < SIZE; col++) {
+                    if (!values[col].equals("0") && !values[col].equals("1")) {
+                        throw new IOException("Dữ liệu boolean không hợp lệ");
+                    }
+                    fixedCells[row][col] = values[col].equals("1");
+                }
+                row++;
+            }
+
+            if (row < SIZE) {
+                throw new IOException("File không đủ dữ liệu - thiếu hàng");
+            }
+        }
+        return fixedCells;
+    }
+    public void createParentDirectories(String filePath) throws IOException {
+        Path path = Paths.get(filePath);
+        Path parent = path.getParent();
+        if (parent != null) {
+            Files.createDirectories(parent);
+        }
+    }
+    public void writeMatrixToFile(String filePath, int[][] matrix) throws IOException {
+        try (BufferedWriter writer = Files.newBufferedWriter(Paths.get(filePath))) {
+            for (int[] row : matrix) {
+                for (int value : row) {
+                    writer.write(value + " ");
+                }
+                writer.newLine();
+            }
+        }
+    }
+    public void writeBooleanMatrixToFile(String filePath, boolean[][] matrix) throws IOException {
+        try (BufferedWriter writer = Files.newBufferedWriter(Paths.get(filePath))) {
+            for (boolean[] row : matrix) {
+                for (boolean value : row) {
+                    writer.write(value ? "1 " : "0 ");
+                }
+                writer.newLine();
+            }
+        }
+    }
+    // load game khi an choi moi
+    public void loadRandomBoard() throws IOException {
+        int SIZE = model.getSize();
+        Random rand = new Random();
+        int game = rand.nextInt(5) + 1;
+        Path boardPath = Paths.get("src", "Level", String.format("sudokumatrix%d.txt", game));
+        Path solutionPath = Paths.get("src", "Level", String.format("sudokumatrixSolution%d.txt", game));
+
+        if (!Files.exists(boardPath) || !Files.exists(solutionPath)) {
+            throw new IOException("Không tìm thấy file dữ liệu Sudoku");
+        }
+
+        board = readPuzzleFromFile(boardPath.toString());
+        solution = readPuzzleFromFile(solutionPath.toString());
+        fixedCells= updateFixedCells();
+        this.setModelBoard(fixedCells, board, solution);
+    }
+    // load choi tiep tuc game da luu
+    public void loadContinueBoard() throws IOException {
+        board = readPuzzleFromFile("src/saveGame/sudoku_save.txt");
+        fixedCells=readBooleanMatrixFromFile("src/saveGame/fixedMatrix.txt");
+        solution=readPuzzleFromFile("src/saveGame/solution_save.txt");
+        this.setModelBoard(fixedCells, board, solution);
+    }
     public void loadSudokuBoard() {
         boolean isDarkMode = view.getDarkMode();
         for (int i = 0; i < 9; i++) {
@@ -34,23 +157,7 @@ public class SudokuController {
         }
     }
 
-    public void updateViewFromModel() {
-        board = this.model.getBoard();
-        solution = this.model.getSolution();
-        fixedCells = this.model.getFixedCells();
-        loadSudokuBoard();
-    }
 
-    public void updateViewFromModel(boolean[][] fixed) {
-        int[][] board = this.model.getBoard();
-        fixedCells = fixed;
-        boolean isDarkMode = view.getDarkMode();
-        for (int i = 0; i < 9; i++) {
-            for (int j = 0; j < 9; j++) {
-                this.view.updateCell(i, j, board[i][j], fixedCells[i][j], isDarkMode);
-            }
-        }
-    }
 
     public int[][] getBoardFromView() throws NumberFormatException {
         int[][] board = new int[9][9];
@@ -80,9 +187,9 @@ public class SudokuController {
 
     public void handleNewGame() {
         try {
-            model.loadRandomBoard();
+            this.loadRandomBoard();
             model.setNumberOfHints(5);
-            updateViewFromModel();
+            this.loadSudokuBoard();
             view.setGameControlsEnabled(true);
             view.showMessage("Game mới đã bắt đầu!", Color.BLUE);
             view.showNumberOfHints("Bạn còn " + model.getNumberOfHints() + " lượt gợi ý!", Color.black);
@@ -161,12 +268,12 @@ public class SudokuController {
             try {
                 int[][] currentBoard = getBoardFromView();
                 view.showMessage("Đã lưu game thành công", Color.green);
-                model.createParentDirectories("src/saveGame/sudoku_save.txt");
-                model.createParentDirectories("src/saveGame/solution_save.txt");
-                model.createParentDirectories("src/saveGame/fixedMatrix.txt");
-                model.writeMatrixToFile("src/saveGame/sudoku_save.txt", currentBoard);
-                model.writeMatrixToFile("src/saveGame/solution_save.txt", solution);
-                model.writeBooleanMatrixToFile("src/saveGame/fixedMatrix.txt", fixedCells);
+                createParentDirectories("src/saveGame/sudoku_save.txt");
+                createParentDirectories("src/saveGame/solution_save.txt");
+                createParentDirectories("src/saveGame/fixedMatrix.txt");
+                writeMatrixToFile("src/saveGame/sudoku_save.txt", currentBoard);
+                writeMatrixToFile("src/saveGame/solution_save.txt", solution);
+                writeBooleanMatrixToFile("src/saveGame/fixedMatrix.txt", fixedCells);
                 for (int i = 0; i < 9; i++) {
                     for (int j = 0; j < 9; j++) {
                         view.updateCell(i, j, 0, false, isDarkMode);
@@ -183,8 +290,8 @@ public class SudokuController {
     public void handleContinueGame() {
         if (!view.getGameStarted()) {
             try {
-                boolean[][] fixedBoard = model.loadContinueBoard();
-                updateViewFromModel(fixedBoard);
+                loadContinueBoard();
+               this.loadSudokuBoard();
                 view.setGameControlsEnabled(true);
                 view.showMessage("Đã tải game tiếp thành công", Color.GREEN);
                 changeBGWhileGameStarted();
@@ -224,6 +331,7 @@ public class SudokuController {
                 view.changeBGDarkModeButton(Color.black);
                 view.setTextDarkModeButton("<html>chế độ <br>tối<html>", Color.white);
             }
+            board = getBoardFromView();
             loadSudokuBoard();
         }
     }
